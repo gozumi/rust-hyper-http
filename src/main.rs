@@ -1,11 +1,13 @@
 use hyper::{Client, body::HttpBody};
+use hyper_tls::HttpsConnector;
 use tokio::io::{stdout, AsyncWriteExt};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let client = Client::new();
+    let https = HttpsConnector::new();
+    let client = Client::builder().build::<_, hyper::Body>(https);
 
-    let uri = "http://httpbin.org/ip".parse()?;
+    let uri = "https://httpbin.org/ip".parse()?;
 
     let mut response = client.get(uri).await?;
 
