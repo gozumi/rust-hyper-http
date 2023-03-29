@@ -1,4 +1,5 @@
-use hyper::Client;
+use hyper::{Client, body::HttpBody};
+use tokio::io::{stdout, AsyncWriteExt};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -6,9 +7,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let uri = "http://httpbin.org/ip".parse()?;
 
-    let response = client.get(uri).await?;
+    let mut response = client.get(uri).await?;
 
     println!("Response {:#?}", response);
+
+    while let Some(chunk) = response.body_mut().data().await {
+        stdout().write_all(&chunk?).await?;
+    }
 
     Ok(())
 }
