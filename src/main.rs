@@ -7,13 +7,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let https = HttpsConnector::new();
     let client = Client::builder().build::<_, hyper::Body>(https);
 
-    let uri = "https://httpbin.org/ip".parse()?;
+    let uri = "https://httpbin.org/stream/100".parse()?;
 
     let mut response = client.get(uri).await?;
 
     println!("Response {:#?}", response);
 
     while let Some(chunk) = response.body_mut().data().await {
+        println!("----------------->");
         stdout().write_all(&chunk?).await?;
     }
 
